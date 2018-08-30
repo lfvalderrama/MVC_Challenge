@@ -1,0 +1,25 @@
+﻿<h2>Select DB Context to use</h2>
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        @using (Html.BeginForm("SwitchConnection", "Connection"))
+        {
+            foreach (var type in (ConnectionTypes[])Enum.GetValues(typeof(ConnectionTypes)))
+            {
+                var current = (string)ViewData["current"] == type.ToString() ? true : false;
+                @Html.RadioButton("connection", type, current) <span>@type.ToString()</span> <br />
+            }
+            <hr />
+            <input type="submit" value="Save" />
+        }
+
+        @{ 
+            if ((bool)ViewData["success"])
+            {
+                <hr />
+                <p> The DB Context was changed successfully</p>
+            }        
+        }
+    </div>
+</div>

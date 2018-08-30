@@ -86,10 +86,11 @@ namespace WebShop.Controllers
             return View(product); 
         }
 
+        [SetContextFilter]
         // GET: Products/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(int? id, ConnectionTypes type)
         {
-            SetContext();
+            _context = _contexts[type];
             if (id == null)
             {
                 return NotFound();
@@ -107,10 +108,11 @@ namespace WebShop.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
+        [SetContextFilter]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ProductId,Name,Description,Price,Quantity")] Product product)
+        public async Task<IActionResult> Edit(int id, [Bind("ProductId,Name,Description,Price,Quantity")] Product product, ConnectionTypes type)
         {
-            SetContext();
+            _context = _contexts[type];
             if (id != product.ProductId)
             {
                 return NotFound();
@@ -140,9 +142,10 @@ namespace WebShop.Controllers
         }
 
         // GET: Products/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        [SetContextFilter]
+        public async Task<IActionResult> Delete(int? id, ConnectionTypes type)
         {
-            SetContext();
+            _context = _contexts[type];
             if (id == null)
             {
                 return NotFound();
@@ -161,9 +164,10 @@ namespace WebShop.Controllers
         // POST: Products/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        [SetContextFilter]
+        public async Task<IActionResult> DeleteConfirmed(int id, ConnectionTypes type)
         {
-            SetContext();
+            _context = _contexts[type];
             var product = await _context.Product.FindAsync(id);
             _context.Product.Remove(product);
             _context.SaveChanges();

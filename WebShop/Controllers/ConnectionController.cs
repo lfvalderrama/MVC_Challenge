@@ -18,11 +18,27 @@ namespace WebShop.Controllers
         {
             _contexts = contexts;
         }
+
         public IActionResult SwitchConnection()
         {
-            var test = HttpContext.Session.GetString("connection");
-            HttpContext.Session.SetString("connection", "InMemory");
-            return RedirectToAction("Index","Home");
+            var current = HttpContext.Session.GetString("connection");
+            if (current == null)
+            {
+                current = ConnectionTypes.SqlServer.ToString();
+                HttpContext.Session.SetString("connection", current);
+            }
+            ViewData["current"] = current;
+            ViewData["success"] = false;
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult SwitchConnection(ConnectionTypes connection)
+        {
+            HttpContext.Session.SetString("connection", connection.ToString());
+            ViewData["current"] = connection.ToString();
+            ViewData["success"] = true;
+            return View();
         }
     }
 }
