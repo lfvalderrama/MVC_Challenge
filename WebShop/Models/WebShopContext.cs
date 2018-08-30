@@ -6,15 +6,17 @@ namespace WebShop.Models
 {
     public partial class WebShopContext : DbContext, IDBContext
     {
+        public string Options { get; set; }
         public WebShopContext()
         {
         }
 
-        public WebShopContext(DbContextOptions<WebShopContext> options)
+        public WebShopContext(DbContextOptions options, string text)
             : base(options)
         {
+            Options = text;
         }
-
+        
         public virtual DbSet<Customer> Customer { get; set; }
         public virtual DbSet<Order> Order { get; set; }
         public virtual DbSet<OrderDetail> OrderDetail { get; set; }
@@ -37,9 +39,7 @@ namespace WebShop.Models
             {
                 entity.ToTable("customer");
 
-                entity.Property(e => e.CustomerId)
-                    .HasColumnName("customer_Id")
-                    .ValueGeneratedNever();
+                entity.Property(e => e.CustomerId).HasColumnName("customer_Id");
 
                 entity.Property(e => e.Age).HasColumnName("age");
 
@@ -66,9 +66,7 @@ namespace WebShop.Models
             {
                 entity.ToTable("order");
 
-                entity.Property(e => e.OrderId)
-                    .HasColumnName("order_Id")
-                    .ValueGeneratedNever();
+                entity.Property(e => e.OrderId).HasColumnName("order_Id");
 
                 entity.Property(e => e.CustomerId).HasColumnName("customer_Id");
 
@@ -121,9 +119,7 @@ namespace WebShop.Models
             {
                 entity.ToTable("product");
 
-                entity.Property(e => e.ProductId)
-                    .HasColumnName("product_Id")
-                    .ValueGeneratedNever();
+                entity.Property(e => e.ProductId).HasColumnName("product_Id");
 
                 entity.Property(e => e.Description)
                     .HasColumnName("description")
@@ -146,9 +142,7 @@ namespace WebShop.Models
             {
                 entity.ToTable("product_category");
 
-                entity.Property(e => e.ProductCategoryId)
-                    .HasColumnName("product_category_Id")
-                    .ValueGeneratedNever();
+                entity.Property(e => e.ProductCategoryId).HasColumnName("product_category_Id");
 
                 entity.Property(e => e.Description)
                     .HasColumnName("description")

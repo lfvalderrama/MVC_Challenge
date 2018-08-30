@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using WebShop.Models;
@@ -34,12 +35,17 @@ namespace WebShop
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            services.AddMvc().AddControllersAsServices();
             services.AddMvc();
-            ContainerBuilder builder = new ContainerBuilder();
-            builder.RegisterType<WebShopContext>().As<IDBContext>().InstancePerLifetimeScope();
+            services.AddDistributedMemoryCache(); 
+            services.AddSession();
+            var builder = new ContainerBuilder();
+            builder.Register<WebShopContext>(context => DBContextFactory.CreateContext("Server=.\\sqlexpress;Database=WebShop;Trusted_Connection=True;")).Keyed<WebShopContext>(ConnectionTypes.SqlServer);
+            builder.Register<WebShopContext>(context => DBContextFactory.CreateContext()).Keyed<WebShopContext>(ConnectionTypes.InMemory);
             builder.Populate(services);
             var container = builder.Build();
             return container.Resolve<IServiceProvider>();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -58,6 +64,7 @@ namespace WebShop
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();
+            app.UseSession();
 
             app.UseMvc(routes =>
             {

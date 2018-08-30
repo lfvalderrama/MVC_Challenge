@@ -16,5 +16,6 @@ namespace WebShop.Models
         DbSet<ProductProductCategory> ProductProductCategory { get; set; }
 
         int SaveChanges();
+        //Task<int> SaveChangesAsync();
     }
 }
