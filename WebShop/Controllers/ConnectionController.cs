@@ -11,12 +11,8 @@ namespace WebShop.Controllers
 {
     public class ConnectionController : Controller
     {
-        private readonly IIndex<ConnectionTypes, WebShopContext> _contexts;
-        private readonly ConnectionTypes defaultConnection = ConnectionTypes.SqlServer;
-
-        public ConnectionController(IIndex<ConnectionTypes, WebShopContext> contexts)
+        public ConnectionController()
         {
-            _contexts = contexts;
         }
 
         public IActionResult SwitchConnection()

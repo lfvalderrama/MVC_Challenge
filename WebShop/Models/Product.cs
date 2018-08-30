@@ -9,6 +9,7 @@ namespace WebShop.Models
         {
             OrderDetail = new HashSet<OrderDetail>();
             ProductProductCategory = new HashSet<ProductProductCategory>();
+            ShoppingCartProducts = new HashSet<ShoppingCartProducts>();
         }
 
         public int ProductId { get; set; }
@@ -19,5 +20,6 @@ namespace WebShop.Models
 
         public ICollection<OrderDetail> OrderDetail { get; set; }
         public ICollection<ProductProductCategory> ProductProductCategory { get; set; }
+        public ICollection<ShoppingCartProducts> ShoppingCartProducts { get; set; }
     }
 }

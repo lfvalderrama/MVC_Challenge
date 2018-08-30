@@ -4,32 +4,32 @@ using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace WebShop.Models
 {
-    public partial class WebShopContext : DbContext, IDBContext
+    public partial class WebShopContext : DbContext
     {
-        public string Options { get; set; }
         public WebShopContext()
         {
         }
 
-        public WebShopContext(DbContextOptions options, string text)
+        public WebShopContext(DbContextOptions options)
             : base(options)
         {
-            Options = text;
         }
-        
+
         public virtual DbSet<Customer> Customer { get; set; }
         public virtual DbSet<Order> Order { get; set; }
         public virtual DbSet<OrderDetail> OrderDetail { get; set; }
         public virtual DbSet<Product> Product { get; set; }
         public virtual DbSet<ProductCategory> ProductCategory { get; set; }
         public virtual DbSet<ProductProductCategory> ProductProductCategory { get; set; }
+        public virtual DbSet<ShoppingCart> ShoppingCart { get; set; }
+        public virtual DbSet<ShoppingCartProducts> ShoppingCartProducts { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
             {
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
-                optionsBuilder.UseSqlServer("Server=.\\sqlexpress;Database=WebShop;Trusted_Connection=True;");
+                optionsBuilder.UseSqlServer("Server=.\\sqlexpress;Database=WebShop;Trusted_connection=True;");
             }
         }
 
@@ -60,6 +60,13 @@ namespace WebShop.Models
                     .HasColumnName("last_Name")
                     .HasMaxLength(50)
                     .IsUnicode(false);
+
+                entity.Property(e => e.ShoppingCartId).HasColumnName("shopping_cart_Id");
+
+                entity.HasOne(d => d.ShoppingCart)
+                    .WithMany(p => p.Customer)
+                    .HasForeignKey(d => d.ShoppingCartId)
+                    .HasConstraintName("FK_customer_shopping_cart");
             });
 
             modelBuilder.Entity<Order>(entity =>
@@ -177,6 +184,38 @@ namespace WebShop.Models
                     .HasForeignKey(d => d.ProductId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_product_product_category_product");
+            });
+
+            modelBuilder.Entity<ShoppingCart>(entity =>
+            {
+                entity.ToTable("shopping_cart");
+
+                entity.Property(e => e.ShoppingCartId).HasColumnName("shopping_cart_Id");
+            });
+
+            modelBuilder.Entity<ShoppingCartProducts>(entity =>
+            {
+                entity.HasKey(e => new { e.ShoppingCartId, e.ProductId });
+
+                entity.ToTable("shopping_cart_products");
+
+                entity.Property(e => e.ShoppingCartId).HasColumnName("shopping_cart_Id");
+
+                entity.Property(e => e.ProductId).HasColumnName("product_Id");
+
+                entity.Property(e => e.Quantity).HasColumnName("quantity");
+
+                entity.HasOne(d => d.Product)
+                    .WithMany(p => p.ShoppingCartProducts)
+                    .HasForeignKey(d => d.ProductId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_shopping_cart_products_product");
+
+                entity.HasOne(d => d.ShoppingCart)
+                    .WithMany(p => p.ShoppingCartProducts)
+                    .HasForeignKey(d => d.ShoppingCartId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_shopping_cart_products_shopping_cart");
             });
         }
     }

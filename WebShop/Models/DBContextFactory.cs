@@ -12,16 +12,10 @@ namespace WebShop.Models
         {
             var options = new DbContextOptionsBuilder();
             if (connectionString == null)
-            {
                 options.UseInMemoryDatabase("inMemory");
-
-                return new WebShopContext(options.Options, "InMemory");
-            }
             else
-            {
                 options.UseSqlServer(connectionString);
-                return new WebShopContext(options.Options, "SQL");
-            }
+            return new WebShopContext(options.Options);
         }
     }
 }
