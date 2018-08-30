@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using WebShop.Models;
 using Microsoft.AspNetCore.Http;
+using WebShop.Filters;
 
 namespace WebShop.Controllers
 {
@@ -30,16 +31,19 @@ namespace WebShop.Controllers
             _context = _contexts[connectionType];
         }
 
+        [SetContextFilter]
         // GET: Products
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(ConnectionTypes type)
         {
-            SetContext();
+            _context = _contexts[type];
             return View(await _context.Product.ToListAsync());
         }
 
+        [SetContextFilter]
         // GET: Products/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details(int? id, ConnectionTypes type)
         {
+            _context = _contexts[type];
             SetContext();
             if (id == null)
             {
@@ -56,10 +60,11 @@ namespace WebShop.Controllers
             return View(product);
         }
 
+        [SetContextFilter]
         // GET: Products/Create
-        public IActionResult Create()
+        public IActionResult Create(ConnectionTypes type)
         {
-            SetContext();
+            _context = _contexts[type];
             return View();
         }
 
@@ -68,9 +73,10 @@ namespace WebShop.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ProductId,Name,Description,Price,Quantity")] Product product)
+        [SetContextFilter]
+        public async Task<IActionResult> Create([Bind("ProductId,Name,Description,Price,Quantity")] Product product, ConnectionTypes type)
         {
-            SetContext();
+            _context = _contexts[type];
             if (ModelState.IsValid)
             {
                 _context.Product.Add(product);

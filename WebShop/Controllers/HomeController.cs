@@ -14,7 +14,6 @@ namespace WebShop.Controllers
     {
         public IActionResult Index()
         {
-            HttpContext.Session.SetString("connection", "SqlServer");
             return View();
         }
 
