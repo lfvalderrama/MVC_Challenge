@@ -7,49 +7,34 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using WebShop.Filters;
+using WebShop.Managers;
 using WebShop.Models;
 
 namespace WebShop.Controllers
 {
     public class CustomersController : Controller
     {
-        private  WebShopContext _context;
-        private readonly IIndex<ConnectionTypes, WebShopContext> _contexts;
-        private readonly ConnectionTypes defaultConnection = ConnectionTypes.SqlServer;
+        private readonly CustomerManager _customerManager;
 
-        public CustomersController(IIndex<ConnectionTypes, WebShopContext> contexts)
+        public CustomersController(CustomerManager customerManager)
         {
-            _contexts = contexts;
-            _context = _contexts[defaultConnection];
+            _customerManager = customerManager;
         }
 
-        [SetContextFilter]
         // GET: Customers/Details/5
-        public async Task<IActionResult> Details(int? id, ConnectionTypes type)
+        public async Task<IActionResult> Details(int? id)
         {
-            _context = _contexts[type];
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var customer = await _context.Customer
-                .Include(c => c.ShoppingCart)
-                .FirstOrDefaultAsync(m => m.CustomerId == id);
+            var customer = _customerManager.GetCustomer((int)id);
             if (customer == null)
             {
                 return NotFound();
             }
-
             return View(customer);
         }
 
         // GET: Customers/Create
-        [SetContextFilter]
-        public IActionResult Create(ConnectionTypes type)
+        public IActionResult Create()
         {
-            _context = _contexts[type];
-            ViewData["ShoppingCartId"] = new SelectList(_context.ShoppingCart, "ShoppingCartId", "ShoppingCartId");
             return View();
         }
 
@@ -58,36 +43,20 @@ namespace WebShop.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [SetContextFilter]
-        public async Task<IActionResult> Create([Bind("CustomerId,FirstName,LastName,Email,Age,ShoppingCartId")] Customer customer, ConnectionTypes type)
+        public IActionResult Create([Bind("CustomerId,FirstName,LastName,Email,Age,ShoppingCartId")] Customer customer)
         {
-            _context = _contexts[type];
             if (ModelState.IsValid)
             {
-                _context.Add(customer);
-                await _context.SaveChangesAsync();
+                _customerManager.AddCustomer(customer);
                 return RedirectToAction("Details", new { id = customer.CustomerId });
             }
-            ViewData["ShoppingCartId"] = new SelectList(_context.ShoppingCart, "ShoppingCartId", "ShoppingCartId", customer.ShoppingCartId);
             return View(customer);
         }
 
         // GET: Customers/Edit/5
-        [SetContextFilter]
-        public async Task<IActionResult> Edit(int? id, ConnectionTypes type)
+        public async Task<IActionResult> Edit(int? id)
         {
-            _context = _contexts[type];
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var customer = await _context.Customer.FindAsync(id);
-            if (customer == null)
-            {
-                return NotFound();
-            }
-            ViewData["ShoppingCartId"] = new SelectList(_context.ShoppingCart, "ShoppingCartId", "ShoppingCartId", customer.ShoppingCartId);
+            var customer = _customerManager.GetCustomer((int)id);
             return View(customer);
         }
 
@@ -96,42 +65,14 @@ namespace WebShop.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [SetContextFilter]
-        public async Task<IActionResult> Edit(int id, [Bind("CustomerId,FirstName,LastName,Email,Age,ShoppingCartId")] Customer customer, ConnectionTypes type)
+        public IActionResult Edit(int id, [Bind("CustomerId,FirstName,LastName,Email,Age,ShoppingCartId")] Customer customer)
         {
-            _context = _contexts[type];
-            if (id != customer.CustomerId)
-            {
-                return NotFound();
-            }
-
             if (ModelState.IsValid)
             {
-                try
-                {
-                    _context.Update(customer);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!CustomerExists(customer.CustomerId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+                _customerManager.UpdateCustomer(customer);
                 return RedirectToAction("Details", new { id = customer.CustomerId});
             }
-            ViewData["ShoppingCartId"] = new SelectList(_context.ShoppingCart, "ShoppingCartId", "ShoppingCartId", customer.ShoppingCartId);
             return View(customer);
-        }                
-
-        private bool CustomerExists(int id)
-        {
-            return _context.Customer.Any(e => e.CustomerId == id);
-        }
+        }     
     }
 }

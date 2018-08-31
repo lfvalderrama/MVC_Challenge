@@ -45,6 +45,8 @@ namespace WebShop
             builder.Register<WebShopContext>(context => DBContextFactory.CreateContext("Server=.\\sqlexpress;Database=WebShop;Trusted_Connection=True;")).Keyed<WebShopContext>(ConnectionTypes.SqlServer);
             builder.Register<WebShopContext>(context => DBContextFactory.CreateContext()).Keyed<WebShopContext>(ConnectionTypes.InMemory);
             builder.RegisterType<ShoppingCartManager>();
+            builder.RegisterType<CustomerManager>();
+            builder.RegisterType<ContextHelper>().As<IContextHelper>();
             builder.Populate(services);
             var container = builder.Build();
             return container.Resolve<IServiceProvider>();

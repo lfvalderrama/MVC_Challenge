@@ -11,30 +11,17 @@ namespace WebShop.Managers
 {
     public class ShoppingCartManager
     {
-        private readonly IHttpContextAccessor _accessor;
+        private readonly IContextHelper _contextHelper;
         private WebShopContext _context;
-        private readonly IIndex<ConnectionTypes, WebShopContext> _contexts;
-        private readonly ConnectionTypes defaultConnection = ConnectionTypes.SqlServer;
 
-        public ShoppingCartManager(IHttpContextAccessor accessor, IIndex<ConnectionTypes, WebShopContext> contexts)
+        public ShoppingCartManager(IContextHelper contextHelper)
         {
-            _accessor = accessor;
-            _contexts = contexts;
-            _context = _contexts[defaultConnection];
-        }
-
-        private void SetContext()
-        {
-            var type = _accessor.HttpContext.Session.GetString("connection");
-            var connectionType = ConnectionTypes.SqlServer;
-            if (type != null) connectionType = (ConnectionTypes)System.Enum.Parse(typeof(ConnectionTypes), type);
-            else _accessor.HttpContext.Session.SetString("connection", ConnectionTypes.SqlServer.ToString());
-            _context = _contexts[connectionType];
+            _contextHelper = contextHelper;
         }
 
         public List<Product> GetProductsFromCart(int customer_id)
         {
-            SetContext();
+            _context = _contextHelper.SetContext();
             try
             {
                 var customer = _context.Customer.Include(c => c.ShoppingCart).Where(c => c.CustomerId == customer_id).FirstOrDefault();
@@ -56,7 +43,7 @@ namespace WebShop.Managers
 
         public void DeleteFromCart(int customer_id, int productId)
         {
-            SetContext();
+            _context = _contextHelper.SetContext();
             try
             {
                 var customer = _context.Customer.Include(c => c.ShoppingCart).Where(c => c.CustomerId == customer_id).FirstOrDefault();
@@ -72,7 +59,7 @@ namespace WebShop.Managers
 
         public void AddToCart(int customer_id, Product product)
         {
-            SetContext();
+            _context = _contextHelper.SetContext();
             try
             {
                 var customer = _context.Customer.Include(c => c.ShoppingCart).Where(c => c.CustomerId == customer_id).FirstOrDefault();
