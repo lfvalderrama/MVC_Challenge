@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using WebShop.Models;
 
 namespace WebShop.Managers
@@ -14,25 +12,23 @@ namespace WebShop.Managers
         public ProductManager(IContextHelper contextHelper)
         {
             _contextHelper = contextHelper;
+            _context = _contextHelper.SetContext();
         }
 
         public List<Product> GetAllProducts()
         {
-            _context = _contextHelper.SetContext();
             var products = _context.Product.ToList();
             return products;
         }
 
         public Product GetProduct(int id)
         {
-            _context = _contextHelper.SetContext();
             var product = _context.Product.FirstOrDefault(m => m.ProductId == id);
             return product;
         }
 
         public void AddProduct(Product product)
         {
-            _context = _contextHelper.SetContext();
             try
             {
                 _context.Add(product);
@@ -46,7 +42,6 @@ namespace WebShop.Managers
 
         public void UpdateProduct(Product product)
         {
-            _context = _contextHelper.SetContext();
             try
             {
                 _context.Update(product);
@@ -60,7 +55,6 @@ namespace WebShop.Managers
 
         public void DeleteProduct(int id)
         {
-            _context = _contextHelper.SetContext();
             try
             {
                 var product = GetProduct(id);

@@ -1,14 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Autofac.Features.Indexed;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using WebShop.Models;
-using Microsoft.AspNetCore.Http;
-using WebShop.Filters;
 using WebShop.Managers;
 
 namespace WebShop.Controllers
@@ -32,10 +24,6 @@ namespace WebShop.Controllers
         // GET: Products/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
             var product = _productManager.GetProduct((int)id);
             if (product == null)
             {
@@ -80,7 +68,6 @@ namespace WebShop.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        [SetContextFilter]
         [ValidateAntiForgeryToken]
         public IActionResult Edit(int id, [Bind("ProductId,Name,Description,Price,Quantity")] Product product)
         {
@@ -100,10 +87,6 @@ namespace WebShop.Controllers
         // GET: Products/Delete/5
         public IActionResult Delete(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
             var product = _productManager.GetProduct((int)id);
             if (product == null)
             {

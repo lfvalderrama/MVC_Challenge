@@ -1,10 +1,6 @@
-﻿using Autofac.Features.Indexed;
-using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
-using System;
+﻿using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using WebShop.Models;
 
 namespace WebShop.Managers
@@ -17,11 +13,12 @@ namespace WebShop.Managers
         public ShoppingCartManager(IContextHelper contextHelper)
         {
             _contextHelper = contextHelper;
+            _context = _contextHelper.SetContext();
+
         }
 
         public List<Product> GetProductsFromCart(int customer_id)
         {
-            _context = _contextHelper.SetContext();
             try
             {
                 var customer = _context.Customer.Include(c => c.ShoppingCart).Where(c => c.CustomerId == customer_id).FirstOrDefault();
@@ -43,7 +40,6 @@ namespace WebShop.Managers
 
         public void DeleteFromCart(int customer_id, int productId)
         {
-            _context = _contextHelper.SetContext();
             try
             {
                 var customer = _context.Customer.Include(c => c.ShoppingCart).Where(c => c.CustomerId == customer_id).FirstOrDefault();
@@ -59,7 +55,6 @@ namespace WebShop.Managers
 
         public void AddToCart(int customer_id, Product product)
         {
-            _context = _contextHelper.SetContext();
             try
             {
                 var customer = _context.Customer.Include(c => c.ShoppingCart).Where(c => c.CustomerId == customer_id).FirstOrDefault();

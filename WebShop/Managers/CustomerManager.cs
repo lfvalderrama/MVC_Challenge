@@ -1,8 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using WebShop.Models;
 
 namespace WebShop.Managers
@@ -15,18 +12,17 @@ namespace WebShop.Managers
         public CustomerManager(IContextHelper contextHelper)
         {
             _contextHelper = contextHelper;
+            _context = _contextHelper.SetContext();
         }
 
         public Customer GetCustomer(int id)
         {
-            _context = _contextHelper.SetContext();
             var customer = _context.Customer.Include(c => c.ShoppingCart).FirstOrDefault(m => m.CustomerId == id);
             return customer;
         }
 
         public void AddCustomer(Customer customer)
         {
-            _context = _contextHelper.SetContext();
             try
             {
                 _context.Add(customer);
@@ -40,7 +36,6 @@ namespace WebShop.Managers
 
         public void UpdateCustomer(Customer customer)
         {
-            _context = _contextHelper.SetContext();
             try
             {
                 _context.Update(customer);
