@@ -44,7 +44,6 @@ namespace WebShop.Controllers
         public async Task<IActionResult> Details(int? id, ConnectionTypes type)
         {
             _context = _contexts[type];
-            SetContext();
             if (id == null)
             {
                 return NotFound();
@@ -74,7 +73,7 @@ namespace WebShop.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [SetContextFilter]
-        public async Task<IActionResult> Create([Bind("ProductId,Name,Description,Price,Quantity")] Product product, ConnectionTypes type)
+        public IActionResult Create([Bind("ProductId,Name,Description,Price,Quantity")] Product product, ConnectionTypes type)
         {
             _context = _contexts[type];
             if (ModelState.IsValid)
@@ -88,7 +87,7 @@ namespace WebShop.Controllers
 
         [SetContextFilter]
         // GET: Products/Edit/5
-        public async Task<IActionResult> Edit(int? id, ConnectionTypes type)
+        public IActionResult Edit(int? id, ConnectionTypes type)
         {
             _context = _contexts[type];
             if (id == null)
@@ -96,7 +95,7 @@ namespace WebShop.Controllers
                 return NotFound();
             }
 
-            var product = await _context.Product.FindAsync(id);
+            var product =  _context.Product.FindAsync(id);
             if (product == null)
             {
                 return NotFound();
@@ -110,7 +109,7 @@ namespace WebShop.Controllers
         [HttpPost]
         [SetContextFilter]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ProductId,Name,Description,Price,Quantity")] Product product, ConnectionTypes type)
+        public IActionResult Edit(int id, [Bind("ProductId,Name,Description,Price,Quantity")] Product product, ConnectionTypes type)
         {
             _context = _contexts[type];
             if (id != product.ProductId)

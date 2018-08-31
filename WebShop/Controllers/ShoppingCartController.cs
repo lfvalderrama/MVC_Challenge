@@ -24,6 +24,42 @@ namespace WebShop.Controllers
         }
 
         [SetContextFilter]
+        // GET: Products/Details/5
+        public IActionResult Details(ConnectionTypes type)
+        {
+            _context = _contexts[type];
+            var customer = _context.Customer.Include(c => c.ShoppingCart).Where(c => c.CustomerId == _customer_id).FirstOrDefault();
+            if (customer == null)
+            {
+                return NotFound();
+            }
+            var shoppingCartProducts = _context.ShoppingCartProducts.Include(scp => scp.Product).Where(scp => scp.ShoppingCartId == customer.ShoppingCartId);
+            if (!shoppingCartProducts.Any())
+            {
+                return NotFound();
+            }
+            var products = new List<Product>();
+            foreach (var scp in shoppingCartProducts)
+            {
+                var product = scp.Product;
+                product.Quantity = scp.Quantity;
+                products.Add(scp.Product);
+            }     
+            return View(products);
+        }
+
+        [SetContextFilter]
+        public IActionResult DeleteFromCart(int productId ,ConnectionTypes type)
+        {
+            _context = _contexts[type];
+            var customer = _context.Customer.Include(c => c.ShoppingCart).Where(c => c.CustomerId == _customer_id).FirstOrDefault();
+            var shoppingCartProduct = _context.ShoppingCartProducts.Where(scp => scp.ShoppingCartId == customer.ShoppingCartId && scp.ProductId == productId).FirstOrDefault();
+            _context.ShoppingCartProducts.Remove(shoppingCartProduct);
+            _context.SaveChanges();
+            return RedirectToAction("Details");
+        }
+
+        [SetContextFilter]
         public IActionResult AddToCart([Bind("ProductId,Name,Description,Price,Quantity")] Product product)
         {
             var customer = _context.Customer.Include(c=>c.ShoppingCart).Where(c=>c.CustomerId==_customer_id).FirstOrDefault();
