@@ -24,13 +24,6 @@ namespace WebShop.Controllers
             _context = _contexts[defaultConnection];
         }
 
-        private void SetContext()
-        {
-            var type = HttpContext.Session.GetString("connection");
-            var connectionType = (ConnectionTypes)System.Enum.Parse(typeof(ConnectionTypes), type);
-            _context = _contexts[connectionType];
-        }
-
         [SetContextFilter]
         // GET: Products
         public async Task<IActionResult> Index(ConnectionTypes type)

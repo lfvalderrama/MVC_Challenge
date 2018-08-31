@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using WebShop.Models;
+using WebShop.Managers;
 
 namespace WebShop
 {
@@ -34,6 +35,7 @@ namespace WebShop
                 options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
+            services.AddHttpContextAccessor();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
             services.AddMvc().AddControllersAsServices();
             services.AddMvc();
@@ -42,6 +44,7 @@ namespace WebShop
             var builder = new ContainerBuilder();
             builder.Register<WebShopContext>(context => DBContextFactory.CreateContext("Server=.\\sqlexpress;Database=WebShop;Trusted_Connection=True;")).Keyed<WebShopContext>(ConnectionTypes.SqlServer);
             builder.Register<WebShopContext>(context => DBContextFactory.CreateContext()).Keyed<WebShopContext>(ConnectionTypes.InMemory);
+            builder.RegisterType<ShoppingCartManager>();
             builder.Populate(services);
             var container = builder.Build();
             return container.Resolve<IServiceProvider>();
