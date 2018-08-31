@@ -46,6 +46,7 @@ namespace WebShop
             builder.Register<WebShopContext>(context => DBContextFactory.CreateContext()).Keyed<WebShopContext>(ConnectionTypes.InMemory);
             builder.RegisterType<ShoppingCartManager>();
             builder.RegisterType<CustomerManager>();
+            builder.RegisterType<ProductManager>();
             builder.RegisterType<ContextHelper>().As<IContextHelper>();
             builder.Populate(services);
             var container = builder.Build();

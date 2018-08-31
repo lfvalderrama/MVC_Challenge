@@ -9,54 +9,44 @@ using Microsoft.EntityFrameworkCore;
 using WebShop.Models;
 using Microsoft.AspNetCore.Http;
 using WebShop.Filters;
+using WebShop.Managers;
 
 namespace WebShop.Controllers
 {
     public class ProductsController : Controller
     {
-        private WebShopContext _context;
-        private readonly IIndex<ConnectionTypes, WebShopContext> _contexts;
-        private readonly ConnectionTypes defaultConnection = ConnectionTypes.SqlServer;
+        private readonly ProductManager _productManager;
 
-        public ProductsController(IIndex<ConnectionTypes, WebShopContext> contexts)
+        public ProductsController(ProductManager productManager)
         {
-            _contexts = contexts;
-            _context = _contexts[defaultConnection];
+            _productManager = productManager;
         }
 
-        [SetContextFilter]
         // GET: Products
-        public async Task<IActionResult> Index(ConnectionTypes type)
+        public IActionResult Index()
         {
-            _context = _contexts[type];
-            return View(await _context.Product.ToListAsync());
+            var products = _productManager.GetAllProducts();
+            return View(products);
         }
 
-        [SetContextFilter]
         // GET: Products/Details/5
-        public async Task<IActionResult> Details(int? id, ConnectionTypes type)
+        public async Task<IActionResult> Details(int? id)
         {
-            _context = _contexts[type];
             if (id == null)
             {
                 return NotFound();
             }
-
-            var product = await _context.Product
-                .FirstOrDefaultAsync(m => m.ProductId == id);
+            var product = _productManager.GetProduct((int)id);
             if (product == null)
             {
                 return NotFound();
             }
-
             return View(product);
         }
 
-        [SetContextFilter]
         // GET: Products/Create
         public IActionResult Create(ConnectionTypes type)
         {
-            _context = _contexts[type];
             return View();
         }
 
@@ -65,30 +55,20 @@ namespace WebShop.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [SetContextFilter]
-        public IActionResult Create([Bind("ProductId,Name,Description,Price,Quantity")] Product product, ConnectionTypes type)
+        public IActionResult Create([Bind("ProductId,Name,Description,Price,Quantity")] Product product)
         {
-            _context = _contexts[type];
             if (ModelState.IsValid)
             {
-                _context.Product.Add(product);
-                _context.SaveChanges();
+                _productManager.AddProduct(product);
                 return RedirectToAction(nameof(Index));
             }
             return View(product); 
         }
 
-        [SetContextFilter]
         // GET: Products/Edit/5
-        public IActionResult Edit(int? id, ConnectionTypes type)
+        public IActionResult Edit(int? id)
         {
-            _context = _contexts[type];
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var product =  _context.Product.FindAsync(id);
+            var product = _productManager.GetProduct((int) id);
             if (product == null)
             {
                 return NotFound();
@@ -102,9 +82,8 @@ namespace WebShop.Controllers
         [HttpPost]
         [SetContextFilter]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(int id, [Bind("ProductId,Name,Description,Price,Quantity")] Product product, ConnectionTypes type)
+        public IActionResult Edit(int id, [Bind("ProductId,Name,Description,Price,Quantity")] Product product)
         {
-            _context = _contexts[type];
             if (id != product.ProductId)
             {
                 return NotFound();
@@ -112,63 +91,34 @@ namespace WebShop.Controllers
 
             if (ModelState.IsValid)
             {
-                try
-                {
-                    _context.Product.Update(product);
-                    _context.SaveChanges();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!ProductExists(product.ProductId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+                _productManager.UpdateProduct(product);
                 return RedirectToAction(nameof(Index));
             }
             return View(product);
         }
 
         // GET: Products/Delete/5
-        [SetContextFilter]
-        public async Task<IActionResult> Delete(int? id, ConnectionTypes type)
+        public IActionResult Delete(int? id)
         {
-            _context = _contexts[type];
             if (id == null)
             {
                 return NotFound();
             }
-
-            var product = await _context.Product
-                .FirstOrDefaultAsync(m => m.ProductId == id);
+            var product = _productManager.GetProduct((int)id);
             if (product == null)
             {
                 return NotFound();
             }
-
             return View(product);
         }
 
         // POST: Products/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        [SetContextFilter]
-        public async Task<IActionResult> DeleteConfirmed(int id, ConnectionTypes type)
+        public IActionResult DeleteConfirmed(int id)
         {
-            _context = _contexts[type];
-            var product = await _context.Product.FindAsync(id);
-            _context.Product.Remove(product);
-            _context.SaveChanges();
+            _productManager.DeleteProduct(id);
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool ProductExists(int id)
-        {
-            return _context.Product.Any(e => e.ProductId == id);
         }
     }
 }
